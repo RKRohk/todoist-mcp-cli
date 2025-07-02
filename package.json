@@ -1,0 +1,25 @@
+{
+  "name": "gtd_with_gemini_ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-test": "ts-node src/tools_test.ts",
+    "start:mcp": "ts-node src/mcp_server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@doist/todoist-api-typescript": "^5.0.2",
+    "@modelcontextprotocol/sdk": "^1.13.2",
+    "typescript": "^5.8.3",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "dotenv": "^16.6.0",
+    "ts-node": "^10.9.2"
+  }
+}

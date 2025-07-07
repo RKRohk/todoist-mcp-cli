@@ -1,5 +1,9 @@
-import { Task, TodoistApi, PersonalProject, WorkspaceProject } from "@doist/todoist-api-typescript";
-
+import {
+  Task,
+  TodoistApi,
+  PersonalProject,
+  WorkspaceProject,
+} from "@doist/todoist-api-typescript";
 
 export async function addTask(
   api: TodoistApi,
@@ -8,41 +12,40 @@ export async function addTask(
 ) {
   try {
     const task = await api.addTask({ content: content, labels: labels });
-    console.log(`Added task: ${task.content}`);
     return task;
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
 export async function listTasks(
   api: TodoistApi,
   label?: string,
-  projectId?: string
+  projectId?: string,
+  filter?: string
 ) {
   try {
-    const tasks = await api.getTasks({ label: label, projectId: projectId });
-    if (tasks.results.length === 0) {
-      console.log("No tasks found.");
-      return [];
+    const params: {
+      label?: string;
+      projectId?: string;
+      filter?: string;
+    } = {};
+
+    if (label) {
+      params.label = label;
     }
-    console.log("Tasks:");
-    tasks.results.forEach((task) => {
-      console.log(`- ${task.content} (ID: ${task.id})`);
-    });
+    if (projectId) {
+      params.projectId = projectId;
+    }
+    if (filter) {
+      params.filter = filter;
+    }
+
+    const tasks = await api.getTasks(params);
     const taskGraph = createTaskGraph(tasks.results);
-    const taskGraphForDisplay = JSON.parse(JSON.stringify(taskGraph));
-    taskGraphForDisplay.forEach((task: any) => {
-      delete task.userId;
-      delete task.addedByUid;
-      delete task.assignedByUid;
-      delete task.responsibleUid;
-      delete task.url;
-    });
-    console.log(JSON.stringify(taskGraphForDisplay));
     return taskGraph;
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
@@ -90,18 +93,18 @@ export async function processTask(
 ) {
   try {
     await api.moveTasks([taskId], { projectId: projectId });
-    console.log(`Moved task ${taskId} to project ${projectId}`);
-  } catch (error) {
-    console.error(error);
+    return `Task ${taskId} processed.`;
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
 export async function deleteTask(api: TodoistApi, taskId: string) {
   try {
     await api.deleteTask(taskId);
-    console.log(`Deleted task ${taskId}`);
-  } catch (error) {
-    console.error(error);
+    return `Deleted task ${taskId}`;
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
@@ -117,9 +120,19 @@ export async function updateTask(
 ) {
   try {
     await api.updateTask(taskId, options);
-    console.log(`Updated task ${taskId}`);
-  } catch (error) {
-    console.error(error);
+    return `Task ${taskId} updated.`;
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function getProjects(api: TodoistApi) {
+  try {
+    const projects = await api.getProjects();
+    const projectGraph = createProjectGraph(projects.results);
+    return projectGraph;
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
@@ -140,7 +153,11 @@ const createProjectGraph = (projects: Project[]): ProjectGraph => {
 
   for (const project of projects) {
     const projectWithChildren = projectsMap.get(project.id);
-    if ("parentId" in project && project.parentId && projectsMap.has(project.parentId)) {
+    if (
+      "parentId" in project &&
+      project.parentId &&
+      projectsMap.has(project.parentId)
+    ) {
       const parent = projectsMap.get(project.parentId)!;
       parent.children.push(projectWithChildren!);
     } else {
@@ -151,28 +168,105 @@ const createProjectGraph = (projects: Project[]): ProjectGraph => {
   return roots;
 };
 
-export async function getProjects(api: TodoistApi) {
-  try {
-    const projects = await api.getProjects();
-    if (projects.results.length === 0) {
-      console.log("No projects found.");
-      return [];
-    }
-    const projectGraph = createProjectGraph(projects.results);
-    return projectGraph;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
 export async function getProjectDetails(api: TodoistApi, projectId: string) {
   try {
     const project = await api.getProject(projectId);
-    console.log(`Project details for ${project.name}:`);
-    console.log(JSON.stringify(project, null, 2));
     return project;
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function getLabels(api: TodoistApi) {
+  try {
+    const labels = await api.getLabels({});
+    return labels.results;
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+const COLOR_MAP: { [key: string]: number } = {
+  berry_red: 30,
+  red: 31,
+  orange: 32,
+  yellow: 33,
+  olive_green: 34,
+  lime_green: 35,
+  green: 36,
+  mint_green: 37,
+  teal: 38,
+  sky_blue: 39,
+  light_blue: 40,
+  blue: 41,
+  grape: 42,
+  violet: 43,
+  lavender: 44,
+  magenta: 45,
+  salmon: 46,
+  charcoal: 47,
+  grey: 48,
+  taupe: 49,
+};
+
+export async function createLabel(
+  api: TodoistApi,
+  name: string,
+  color?: string,
+  isFavorite?: boolean
+) {
+  try {
+    const colorId = color ? COLOR_MAP[color] : undefined;
+    const label = await api.addLabel({ name, color: colorId, isFavorite });
+    return label;
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function getFilters(api: TodoistApi) {
+  try {
+    return [];
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function createProject(api: TodoistApi, name: string, parentId?: string, color?: string, isFavorite?: boolean) {
+  try {
+    const colorId = color ? COLOR_MAP[color] : undefined;
+    const project = await api.addProject({ name, parentId, color: colorId, isFavorite });
+    return project;
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function deleteProject(api: TodoistApi, projectId: string) {
+  try {
+    await api.deleteProject(projectId);
+    return `Deleted project ${projectId}`;
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function weeklyReview(api: TodoistApi, inboxId: string, somedayMaybeId: string) {
+  try {
+    const inboxTasks = await listTasks(api, undefined, inboxId);
+    const overdueTasks = await listTasks(api, undefined, undefined, "overdue");
+    const waitingForTasks = await listTasks(api, "waiting_for_💤");
+    const projects = await getProjects(api);
+    const somedayMaybeTasks = await listTasks(api, undefined, somedayMaybeId);
+
+    return {
+      inboxTasks,
+      overdueTasks,
+      waitingForTasks,
+      projects,
+      somedayMaybeTasks,
+    };
+  } catch (error: any) {
+    return { error: error.message };
   }
 }

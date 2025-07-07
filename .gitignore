@@ -1,3 +1,11 @@
 .env
 .rough
 node_modules/
+
+# Ignore all markdown files, except for README.md
+*.md
+!/README.md
+.gemini
+.cursor
+.vscode
+.*ignore

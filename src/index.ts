@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-import { addTask, listTasks, processTask, deleteTask, updateTask, getProjectDetails } from './tools'
+import { addTask, listTasks, processTask, deleteTask, updateTask, getProjectDetails, getLabels, createLabel, getFilters } from './tools'
 
 const api = new TodoistApi(process.env.TODOIST_API_TOKEN || '')
 
@@ -71,8 +71,24 @@ export async function main() {
             }
             await getProjectDetails(api, projectDetailsId)
             break
+        case 'get-labels':
+            await getLabels(api)
+            break
+        case 'create-label':
+            const labelName = args[1]
+            if (!labelName) {
+                console.error('Please provide a label name.')
+                process.exit(1)
+            }
+            const labelColor = args.find(arg => arg.startsWith('--color='))?.split('=')[1]
+            const labelFavorite = args.find(arg => arg === '--favorite') ? true : undefined
+            await createLabel(api, labelName, labelColor, labelFavorite)
+            break
+        case 'get-filters':
+            await getFilters(api)
+            break
         default:
-            console.log('Unknown command. Available commands: add, list, process, delete, update, project-details')
+            console.log('Unknown command. Available commands: add, list, process, delete, update, project-details, get-labels, create-label, get-filters')
             process.exit(1)
     }
 }

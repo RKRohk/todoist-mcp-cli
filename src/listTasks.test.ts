@@ -1,17 +1,28 @@
+import { listTasks } from './tools';
+import { TodoistApi } from '@doist/todoist-api-typescript';
 
-import { TodoistApi } from "@doist/todoist-api-typescript";
-import { listTasks } from "./tools";
-import * as dotenv from "dotenv";
+jest.mock('@doist/todoist-api-typescript');
 
-dotenv.config();
+const mockedTodoistApi = TodoistApi as jest.MockedClass<typeof TodoistApi>;
 
-console.log("TODOIST_API_KEY:", process.env.TODOIST_API_TOKEN);
-const api = new TodoistApi(process.env.TODOIST_API_TOKEN as string);
+describe('listTasks', () => {
+  it('should return a task graph', async () => {
+    const tasks = [
+      { id: '1', content: 'Task 1', parentId: null },
+      { id: '2', content: 'Task 2', parentId: '1' },
+    ];
+    
+    const mockApi = {
+        getTasks: jest.fn().mockResolvedValue({ results: tasks }),
+    };
 
-async function testListTasks() {
-  console.log("Testing listTasks...");
-  const taskGraph = await listTasks(api);
-  console.log("Task graph:", JSON.stringify(taskGraph, null, 2));
-}
+    const taskGraph = await listTasks(mockApi as any);
 
-testListTasks();
+    expect(mockApi.getTasks).toHaveBeenCalled();
+    expect(taskGraph).toEqual([
+      { id: '1', content: 'Task 1', parentId: null, children: [
+        { id: '2', content: 'Task 2', parentId: '1', children: [] }
+      ]}
+    ]);
+  });
+});

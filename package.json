@@ -1,5 +1,5 @@
 {
-  "name": "gtd_with_gemini_ts",
+  "name": "todoist-mcp-cli",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

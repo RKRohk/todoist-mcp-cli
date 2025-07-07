@@ -8,10 +8,17 @@ import {
 export async function addTask(
   api: TodoistApi,
   content: string,
-  labels: string[]
+  labels: string[],
+  projectId?: string,
+  parentId?: string
 ) {
   try {
-    const task = await api.addTask({ content: content, labels: labels });
+    const task = await api.addTask({
+      content: content,
+      labels: labels,
+      projectId,
+      parentId,
+    });
     return task;
   } catch (error: any) {
     return { error: error.message };
@@ -232,10 +239,21 @@ export async function getFilters(api: TodoistApi) {
   }
 }
 
-export async function createProject(api: TodoistApi, name: string, parentId?: string, color?: string, isFavorite?: boolean) {
+export async function createProject(
+  api: TodoistApi,
+  name: string,
+  parentId?: string,
+  color?: string,
+  isFavorite?: boolean
+) {
   try {
     const colorId = color ? COLOR_MAP[color] : undefined;
-    const project = await api.addProject({ name, parentId, color: colorId, isFavorite });
+    const project = await api.addProject({
+      name,
+      parentId,
+      color: colorId,
+      isFavorite,
+    });
     return project;
   } catch (error: any) {
     return { error: error.message };
@@ -251,7 +269,11 @@ export async function deleteProject(api: TodoistApi, projectId: string) {
   }
 }
 
-export async function weeklyReview(api: TodoistApi, inboxId: string, somedayMaybeId: string) {
+export async function weeklyReview(
+  api: TodoistApi,
+  inboxId: string,
+  somedayMaybeId: string
+) {
   try {
     const inboxTasks = await listTasks(api, undefined, inboxId);
     const overdueTasks = await listTasks(api, undefined, undefined, "overdue");

@@ -2,9 +2,17 @@
   "name": "todoist-mcp-cli",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "todoist-mcp-cli": "build/mcp_server.js"
+  },
+  "files": [
+    "build"
+  ],
   "scripts": {
     "start": "ts-node src/index.ts",
+    "build": "tsc && chmod +x build/mcp_server.js",
     "test": "jest",
     "start-test": "ts-node src/tools_test.ts",
     "start:mcp": "ts-node src/mcp_server.ts"

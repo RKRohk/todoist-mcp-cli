@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -17,7 +18,7 @@ import {
   createProject,
   deleteProject,
   weeklyReview,
-} from "./tools";
+} from "./tools.js";
 
 dotenv.config();
 
@@ -246,12 +247,24 @@ server.registerTool(
   "weeklyReview",
   {
     title: "Weekly Review",
-    description: "Perform a weekly review of your Todoist tasks and projects",
+    description:
+      "Perform a weekly review of your Todoist tasks and projects. Requires TODOIST_INBOX_PROJECT_ID and TODOIST_SOMEDAY_MAYBE_PROJECT_ID to be set in the environment.",
     inputSchema: {},
   },
   async () => {
-    const inboxId = "6P56fq2fcW32xW2X"; // Hardcoded Inbox ID
-    const somedayMaybeId = "6P5QCWpxHpGj8h8P"; // Hardcoded Someday/Maybe ID
+    const inboxId = process.env.TODOIST_INBOX_PROJECT_ID;
+    const somedayMaybeId = process.env.TODOIST_SOMEDAY_MAYBE_PROJECT_ID;
+
+    if (!inboxId || !somedayMaybeId) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: "Error: TODOIST_INBOX_PROJECT_ID and TODOIST_SOMEDAY_MAYBE_PROJECT_ID must be set in your environment.",
+          },
+        ],
+      };
+    }
     const reviewData = await weeklyReview(api, inboxId, somedayMaybeId);
     return {
       content: [{ type: "text", text: JSON.stringify(reviewData, null, 2) }],

@@ -1,11 +1,13 @@
-.env
-.rough
-node_modules/
+# Dependencies
+/node_modules
 
-# Ignore all markdown files, except for README.md
+# Build artifacts
+/build
+
+# Environment variables
+.env*
+!/.env.example
+
 *.md
 !/README.md
 .gemini
-.cursor
-.vscode
-.*ignore

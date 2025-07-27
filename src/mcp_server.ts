@@ -17,6 +17,8 @@ import {
   getFilters,
   createProject,
   deleteProject,
+  completeTask,
+  completeTasks,
 } from "./tools.js";
 
 dotenv.config();
@@ -239,6 +241,112 @@ server.registerTool(
     return {
       content: [{ type: "text", text: `Project ${projectId} deleted.` }],
     };
+  }
+);
+
+server.registerTool(
+  "completeTask",
+  {
+    title: "Complete Task",
+    description: "Mark a task or multiple tasks as complete in Todoist",
+    inputSchema: {
+      taskId: z.string().optional(),
+      taskIds: z.array(z.string()).optional(),
+    },
+  },
+  async ({ taskId, taskIds }) => {
+    try {
+      // Input validation: ensure exactly one parameter is provided
+      if ((taskId && taskIds) || (!taskId && !taskIds)) {
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              error: "Invalid input: Must provide either 'taskId' for single task completion or 'taskIds' for multiple task completion, but not both or neither."
+            }, null, 2)
+          }]
+        };
+      }
+
+      // Additional validation for taskIds array
+      if (taskIds && taskIds.length === 0) {
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              error: "Invalid input: 'taskIds' array cannot be empty. Provide at least one task ID."
+            }, null, 2)
+          }]
+        };
+      }
+
+      let results: Array<{taskId: string, success: boolean, task?: any, error?: string}> = [];
+
+      if (taskId) {
+        // Single task completion
+        const result = await completeTask(api, taskId);
+        if ("error" in result) {
+          results.push({
+            taskId,
+            success: false,
+            error: result.error
+          });
+        } else {
+          results.push({
+            taskId,
+            success: true,
+            task: result
+          });
+        }
+      } else if (taskIds) {
+        // Multiple task completion
+        const batchResults = await completeTasks(api, taskIds);
+        results = batchResults.map(({ taskId, result }) => {
+          if ("error" in result) {
+            return {
+              taskId,
+              success: false,
+              error: result.error
+            };
+          } else {
+            return {
+              taskId,
+              success: true,
+              task: result
+            };
+          }
+        });
+      }
+
+      // Create summary
+      const summary = {
+        total: results.length,
+        successful: results.filter(r => r.success).length,
+        failed: results.filter(r => !r.success).length
+      };
+
+      const response = {
+        results,
+        summary
+      };
+
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify(response, null, 2)
+        }]
+      };
+    } catch (error: any) {
+      // Handle any unexpected errors at the MCP tool level
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            error: `Unexpected error in completeTask tool: ${error.message}`
+          }, null, 2)
+        }]
+      };
+    }
   }
 );
 

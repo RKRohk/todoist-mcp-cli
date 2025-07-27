@@ -269,5 +269,39 @@ export async function deleteProject(api: TodoistApi, projectId: string) {
   }
 }
 
+export async function completeTask(api: TodoistApi, taskId: string): Promise<Task | { error: string }> {
+  try {
+    // First get the task details before closing it
+    const task = await api.getTask(taskId);
+    // Close the task
+    const success = await api.closeTask(taskId);
+    if (success) {
+      return task;
+    } else {
+      return { error: `Failed to complete task ${taskId}` };
+    }
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export async function completeTasks(
+  api: TodoistApi,
+  taskIds: string[]
+): Promise<Array<{ taskId: string, result: Task | { error: string } }>> {
+  const results: Array<{ taskId: string, result: Task | { error: string } }> = [];
+
+  // Process tasks sequentially to avoid API rate limits
+  for (const taskId of taskIds) {
+    const result = await completeTask(api, taskId);
+    results.push({
+      taskId,
+      result
+    });
+  }
+
+  return results;
+}
+
 
 

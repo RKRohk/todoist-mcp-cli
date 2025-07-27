@@ -1,7 +1,7 @@
 {
   "name": "todoist-mcp-cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Model Context Protocol (MCP) server that integrates Todoist task management with AI models for enhanced productivity workflows",
   "type": "module",
   "main": "build/index.js",
   "bin": {
@@ -14,12 +14,40 @@
     "start": "ts-node src/index.ts",
     "build": "tsc && chmod +x build/mcp_server.js",
     "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
     "start-test": "ts-node src/tools_test.ts",
-    "start:mcp": "ts-node src/mcp_server.ts"
+    "start:mcp": "ts-node build/mcp_server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "todoist",
+    "gtd",
+    "getting-things-done",
+    "productivity",
+    "task-management",
+    "ai-integration",
+    "claude",
+    "gemini",
+    "cursor"
+  ],
+  "author": {
+    "name": "Todoist MCP CLI Contributors"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rkrohk/todoist-mcp-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rkrohk/todoist-mcp-cli/issues"
+  },
+  "homepage": "https://github.com/rkrohk/todoist-mcp-cli#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@doist/todoist-api-typescript": "^5.0.2",
     "@modelcontextprotocol/sdk": "^1.13.2",

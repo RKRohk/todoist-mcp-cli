@@ -11,3 +11,5 @@
 *.md
 !/README.md
 .gemini
+.kiro
+.cursor

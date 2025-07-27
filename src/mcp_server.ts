@@ -25,7 +25,7 @@ dotenv.config();
 const api = new TodoistApi(process.env.TODOIST_API_TOKEN || "");
 
 const server = new McpServer({
-  name: "gtd-with-gemini",
+  name: "todoist-mcp-server",
   version: "1.0.0",
 });
 

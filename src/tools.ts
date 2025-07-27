@@ -269,26 +269,5 @@ export async function deleteProject(api: TodoistApi, projectId: string) {
   }
 }
 
-export async function weeklyReview(
-  api: TodoistApi,
-  inboxId: string,
-  somedayMaybeId: string
-) {
-  try {
-    const inboxTasks = await listTasks(api, undefined, inboxId);
-    const overdueTasks = await listTasks(api, undefined, undefined, "overdue");
-    const waitingForTasks = await listTasks(api, "waiting_for_💤");
-    const projects = await getProjects(api);
-    const somedayMaybeTasks = await listTasks(api, undefined, somedayMaybeId);
 
-    return {
-      inboxTasks,
-      overdueTasks,
-      waitingForTasks,
-      projects,
-      somedayMaybeTasks,
-    };
-  } catch (error: any) {
-    return { error: error.message };
-  }
-}
+

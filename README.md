@@ -86,12 +86,6 @@ Edit the `.env` file with your credentials:
 ```env
 # Your Todoist API token from step 1
 TODOIST_API_TOKEN=your_actual_api_token_here
-
-# Your Inbox project ID (for GTD capture)
-TODOIST_INBOX_PROJECT_ID=2234567890
-
-# Your Someday/Maybe project ID (for GTD reference)
-TODOIST_SOMEDAY_MAYBE_PROJECT_ID=3234567890
 ```
 
 ## 🤖 AI Model Integration
@@ -107,26 +101,13 @@ Add to your Claude Desktop configuration file (`~/.claude/config.json`):
       "command": "todoist-mcp-cli",
       "args": [],
       "env": {
-        "TODOIST_API_TOKEN": "your_api_token",
-        "TODOIST_INBOX_PROJECT_ID": "your_inbox_id",
-        "TODOIST_SOMEDAY_MAYBE_PROJECT_ID": "your_someday_id"
+        "TODOIST_API_TOKEN": "your_api_token"
       }
     }
   }
 }
 ```
 
-### Gemini CLI
-
-Use the tool directly with Gemini CLI:
-
-```bash
-# Single command execution
-gemini --tool_code_file $(which todoist-mcp-cli) "add a task to buy groceries with label shopping"
-
-# Interactive session
-gemini --tool_code_file $(which todoist-mcp-cli)
-```
 
 ### Cursor IDE
 
